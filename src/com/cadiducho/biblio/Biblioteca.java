@@ -1,13 +1,8 @@
 package com.cadiducho.biblio;
 
 import com.cadiducho.biblio.db.MySQL;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Scanner;
 
@@ -41,8 +36,7 @@ public class Biblioteca {
             int respuesta = in.nextInt();
             switch (respuesta) {
                 case 0:
-                    System.out.println("Escribe el nombre del archivo a cargar:");
-                    cargarLibreria(in.next());
+                    cargarLibreria();
                     break;
                 case 1:
                     System.out.println(lib.getLibros());
@@ -65,7 +59,7 @@ public class Biblioteca {
     
     private void menu() {
         System.out.println("Elige una opción numérica:"
-                + "\n0. Escoge una base de datos para cargar"
+                + "\n0. Cargar libros desde mysql"
                 + "\n1. Ver los libros que hay almacenados"
                 + "\n2. Agregar un nuevo libro"
                 + "\n3. Guardar y salir"
@@ -85,12 +79,23 @@ public class Biblioteca {
 	System.out.println("\nEscribe el año: ");
 	año = in.nextInt();
 
-	Libro l = new Libro(titulo, editorial, autor, año);
+	Libro l = new Libro(titulo, editorial, autor, año, false);
 	lib.addLibro(l);
     }
     
-    private void cargarLibreria(String str) {
-        FileInputStream fis;
+    private void cargarLibreria() {
+        String sql = "SELECT * FROM `libros`";
+        try {
+            ResultSet rs = mysql.querySQL(sql);
+            while (rs.next()) {
+                Libro libro = new Libro(rs.getString("titulo"), rs.getString("editorial"), rs.getString("autor"), rs.getInt("año"), true);
+                lib.addLibro(libro);
+            }
+        } catch (SQLException | ClassNotFoundException ex) {
+            System.out.println("No se ha podido cargar la base de datos");
+        }
+        
+        /*FileInputStream fis;
 	ObjectInputStream inp;
 	File file = new File(str + ".lib");
         if (file.exists()) {
@@ -105,10 +110,24 @@ public class Biblioteca {
             }
         } else {
             System.out.println("Ese archivo no existe!");
-	}
+	}*/
     }
     private void guardarSalir() {
-        System.out.println("Escribe el nombre del archivo: ");
+        for (Libro libro : lib.getLibros()) {
+            if (!libro.cached) {
+                try {
+                    String sql = "INSERT INTO `biblio`.`libros` ("
+                        + "`titulo`, `editorial`, `autor`, `año`, `id`) "
+                        + "VALUES ('"+libro.getTitulo()+"', '"+libro.getEditorial()+"',"
+                        + " '"+libro.getAutor()+"', '"+libro.getAño()+"', NULL);";
+                    mysql.updateSQL(sql);
+                } catch (SQLException | ClassNotFoundException ex) {
+                    System.out.println("No se ha podido guardar el libro: "+ex.getLocalizedMessage());
+                }
+            }
+        }
+        running = false;
+        /*System.out.println("Escribe el nombre del archivo: ");
 	String fileName = in.next() + ".lib";
 	running = false;
 	FileOutputStream fos;
@@ -121,7 +140,7 @@ public class Biblioteca {
             out.close();
 	} catch (IOException e) {
             System.out.println("Error guardando la libreria: "+e.getLocalizedMessage());
-        }
+        }*/
     }
     
 }

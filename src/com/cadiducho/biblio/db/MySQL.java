@@ -42,7 +42,6 @@ public class MySQL extends Database {
                     + "`id` INT(4) NOT NULL AUTO_INCREMENT COMMENT 'ID del libro', PRIMARY KEY (`id`) ) "
                     + "ENGINE = InnoDB COMMENT = 'Tabla principal';";
             updateSQL(sql);
-            System.out.println("Tabla creada");
             return true;
         } catch (SQLException | ClassNotFoundException ex) {
             System.out.println("No se ha podido crear la tabla: "+ex.getLocalizedMessage());
