@@ -3,12 +3,11 @@ package com.cadiducho.biblio;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 
 
 public class Libreria implements Serializable {
     
-    private final List<Libro> collection;
+    private final ArrayList<Libro> collection;
     
     public Libreria() {
         collection = new ArrayList<>();
@@ -17,6 +16,19 @@ public class Libreria implements Serializable {
     public void addLibro(Libro l) {
         collection.add(l);
     }
+    
+    public ArrayList<Libro> getLibros() {
+        return collection;
+    }
+    /*
+    public int getTotalLibros() {
+        int i = 0;
+        Iterator<Libro> it = collection.iterator();
+        while (it.hasNext()) { 
+            i++;
+        }
+        return i;
+    }*/
     
     @Override
     public String toString() {
