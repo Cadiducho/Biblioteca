@@ -1,6 +1,7 @@
 package com.cadiducho.biblio;
 
 import com.cadiducho.biblio.db.MySQL;
+import com.cadiducho.biblio.db.SQLite;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -11,27 +12,36 @@ public class Biblioteca {
     static boolean running = true;
     static Scanner in = new Scanner(System.in);
     static Libreria lib = new Libreria();
-    private final MySQL mysql;
-    private final Connection con;
+    private MySQL mysql = null;
+    private SQLite sqlite = null;
+    private Connection con = null;
     
     public static void main(String[] args) {
         new Biblioteca().launch(args);
     }
     
     private Biblioteca() {
-        mysql = new MySQL("cadi", "biblio", "pass", "3306", "localhost");
-        con = null;
+        sqlite = new SQLite("test.db");
         try {
-            mysql.openConnection();
+            con = sqlite.openConnection();
+            if (!sqlite.crearTabla()) running = false;
+            System.out.println("Se ha conectado a SQLite");
+        } catch (SQLException | ClassNotFoundException ex) {
+            System.out.println("No se ha podido conectar a SQLite: "+ex.getLocalizedMessage());
+            running = false;
+        }
+        /*mysql = new MySQL("cadi", "biblio", "pass", "3306", "localhost");
+        try {
+            con = mysql.openConnection();
             System.out.println("Se ha conectado a MySQL");
             mysql.crearTabla();
         } catch (SQLException | ClassNotFoundException ex) {
             System.out.println("No se ha podido conectar a mysql: "+ex.getLocalizedMessage());
-        }
+        }*/
     }
     
     private void launch(String[] args) {
-        do {
+        while (running) {
             menu();
             int respuesta = in.nextInt();
             switch (respuesta) {
@@ -53,7 +63,7 @@ public class Biblioteca {
                 default: 
                     System.out.println("Opción no válida.");
             }
-        } while (running);
+        }
         System.exit(0);
     }
     
@@ -86,7 +96,7 @@ public class Biblioteca {
     private void cargarLibreria() {
         String sql = "SELECT * FROM `libros`";
         try {
-            ResultSet rs = mysql.querySQL(sql);
+            ResultSet rs = connection.querySQL(sql);
             while (rs.next()) {
                 Libro libro = new Libro(rs.getString("titulo"), rs.getString("editorial"), rs.getString("autor"), rs.getInt("año"), true);
                 lib.addLibro(libro);
@@ -95,22 +105,6 @@ public class Biblioteca {
             System.out.println("No se ha podido cargar la base de datos");
         }
         
-        /*FileInputStream fis;
-	ObjectInputStream inp;
-	File file = new File(str + ".lib");
-        if (file.exists()) {
-            try {
-                fis = new FileInputStream(file);
-		inp = new ObjectInputStream(fis);
-		lib = (Libreria) inp.readObject();
-		fis.close();
-		inp.close();
-            } catch (IOException | ClassNotFoundException e) {
-                System.out.println("Error cargando la libreria: "+e.getLocalizedMessage());
-            }
-        } else {
-            System.out.println("Ese archivo no existe!");
-	}*/
     }
     private void guardarSalir() {
         for (Libro libro : lib.getLibros()) {
@@ -127,20 +121,6 @@ public class Biblioteca {
             }
         }
         running = false;
-        /*System.out.println("Escribe el nombre del archivo: ");
-	String fileName = in.next() + ".lib";
-	running = false;
-	FileOutputStream fos;
-	ObjectOutputStream out;
-	try {
-            fos = new FileOutputStream(fileName);
-            out = new ObjectOutputStream(fos);
-            out.writeObject(lib);
-            fos.close();
-            out.close();
-	} catch (IOException e) {
-            System.out.println("Error guardando la libreria: "+e.getLocalizedMessage());
-        }*/
     }
     
 }
