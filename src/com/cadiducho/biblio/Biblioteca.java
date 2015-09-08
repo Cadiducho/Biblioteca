@@ -1,7 +1,6 @@
 package com.cadiducho.biblio;
 
 import com.cadiducho.biblio.db.MySQL;
-import com.cadiducho.biblio.db.SQLite;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -13,7 +12,6 @@ public class Biblioteca {
     static Scanner in = new Scanner(System.in);
     static Libreria lib = new Libreria();
     private MySQL mysql = null;
-    private SQLite sqlite = null;
     private Connection con = null;
     
     public static void main(String[] args) {
@@ -21,23 +19,9 @@ public class Biblioteca {
     }
     
     private Biblioteca() {
-        sqlite = new SQLite("test.db");
-        try {
-            con = sqlite.openConnection();
-            if (!sqlite.crearTabla()) running = false;
-            System.out.println("Se ha conectado a SQLite");
-        } catch (SQLException | ClassNotFoundException ex) {
-            System.out.println("No se ha podido conectar a SQLite: "+ex.getLocalizedMessage());
-            running = false;
-        }
-        /*mysql = new MySQL("cadi", "biblio", "pass", "3306", "localhost");
-        try {
-            con = mysql.openConnection();
-            System.out.println("Se ha conectado a MySQL");
-            mysql.crearTabla();
-        } catch (SQLException | ClassNotFoundException ex) {
-            System.out.println("No se ha podido conectar a mysql: "+ex.getLocalizedMessage());
-        }*/
+        /*con = sqlite.openConnection();
+        if (!sqlite.crearTabla()) running = false;
+        System.out.println("Se ha conectado a SQLite");*/
     }
     
     private void launch(String[] args) {
@@ -46,7 +30,7 @@ public class Biblioteca {
             int respuesta = in.nextInt();
             switch (respuesta) {
                 case 0:
-                    cargarLibreria();
+                    //cargarLibreria();
                     break;
                 case 1:
                     System.out.println(lib.getLibros());
@@ -92,7 +76,7 @@ public class Biblioteca {
 	Libro l = new Libro(titulo, editorial, autor, año, false);
 	lib.addLibro(l);
     }
-    
+    /*
     private void cargarLibreria() {
         String sql = "SELECT * FROM `libros`";
         try {
@@ -103,9 +87,9 @@ public class Biblioteca {
             }
         } catch (SQLException | ClassNotFoundException ex) {
             System.out.println("No se ha podido cargar la base de datos");
-        }
-        
-    }
+        }    
+    }*/
+    
     private void guardarSalir() {
         for (Libro libro : lib.getLibros()) {
             if (!libro.cached) {

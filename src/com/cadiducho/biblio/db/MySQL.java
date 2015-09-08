@@ -32,5 +32,21 @@ public class MySQL extends Database {
         return connection;
     }
     
+    public boolean crearTabla() {
+        try {
+            String sql = "CREATE TABLE IF NOT EXISTS `libros` ( "
+                    + "`titulo` VARCHAR(255) NOT NULL , "
+                    + "`editorial` VARCHAR(255) NOT NULL , "
+                    + "`autor` VARCHAR(255) NOT NULL , "
+                    + "`año` INT(4) NULL DEFAULT '1' COMMENT 'Año de la edición' , "
+                    + "`id` INT(4) NOT NULL AUTO_INCREMENT COMMENT 'ID del libro', PRIMARY KEY (`id`) );"
+                    + "ENGINE = InnoDB COMMENT = 'Tabla principal';";
+            updateSQL(sql);
+            return true;
+        } catch (SQLException | ClassNotFoundException ex) {
+            System.out.println("No se ha podido crear la tabla: "+ex.getLocalizedMessage());
+            return false;
+        }
+    }
     
 }
